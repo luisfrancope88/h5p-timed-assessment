@@ -82,6 +82,29 @@
               }
             ]
           }
+        },
+        {
+          "name": "trueFalseAnswer",
+          "type": "select",
+          "label": "Correct True / False answer",
+          "default": "true",
+          "options": [
+            {
+              "value": "true",
+              "label": "True"
+            },
+            {
+              "value": "false",
+              "label": "False"
+            }
+          ]
+        },
+        {
+          "name": "expectedAnswer",
+          "type": "text",
+          "label": "Expected answer",
+          "description": "Optional reference answer for free response questions.",
+          "optional": true
         }
       ]
     }
