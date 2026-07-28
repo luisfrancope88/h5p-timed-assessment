@@ -29,6 +29,11 @@ function copyFile(source, destination) {
 }
 
 function copyDirectory(source, destination) {
+  if (!fs.existsSync(source)) {
+    log(`Skipped missing directory: ${source}`);
+    return;
+  }
+
   ensureDirectory(destination);
   fs.cpSync(source, destination, { recursive: true });
   log(`Copied directory: ${source}`);
