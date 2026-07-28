@@ -455,7 +455,22 @@ H5P.TimedAssessment = (function () {
     this.renderFinished();
   };
 
+
+  TimedAssessment.prototype.decodeHTML = function (text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+
+  var textarea = document.createElement('textarea');
+  textarea.innerHTML = String(text);
+
+  return textarea.value;
+  };
+
   TimedAssessment.prototype.getResponseText = function (question, result) {
+
+    var self =this;
+
     if (!result || result.response === null || result.response === undefined) {
       return 'No answer';
     }
@@ -464,7 +479,9 @@ H5P.TimedAssessment = (function () {
 
     if (type === 'singleChoice') {
       var answer = (question.answers || [])[result.response];
-      return answer ? answer.answerText : 'No answer';
+      return answer
+        ? this.decodeHTML(answer.answerText)
+        : 'No answer';
     }
 
     if (type === 'multipleChoice') {
@@ -475,7 +492,7 @@ H5P.TimedAssessment = (function () {
       return result.response
         .map(function (index) {
           var answer = (question.answers || [])[index];
-          return answer ? answer.answerText : '';
+          return answer ? self.decodeHTML(answer.answerText) : '';
         })
         .filter(Boolean)
         .join(', ');
@@ -494,6 +511,7 @@ H5P.TimedAssessment = (function () {
 
 
   TimedAssessment.prototype.getCorrectAnswerText = function (question) {
+    var self = this;
     var type = question.questionType || 'singleChoice';
 
     if (type === 'singleChoice' || type === 'multipleChoice') {
@@ -502,7 +520,7 @@ H5P.TimedAssessment = (function () {
           return answer.correct;
         })
         .map(function (answer) {
-          return answer.answerText;
+          return self.decodeHTML(answer.answerText);
         })
         .join(', ') || 'Not specified';
     }
@@ -603,7 +621,7 @@ H5P.TimedAssessment = (function () {
       $result.append(
         H5P.jQuery('<p>', {
           class: 'timed-assessment-result-question',
-          text: question.questionText || ''
+          text: self.decodeHTML(question.questionText || '')
         })
       );
 
