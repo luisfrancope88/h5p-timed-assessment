@@ -1,0 +1,14 @@
+.timed-assessment {
+    padding: 25px;
+    border: 2px solid #cccccc;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.timed-assessment h2 {
+    margin-top: 0;
+}
+
+.timed-assessment p {
+    color: #444;
+}

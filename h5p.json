@@ -1,0 +1,16 @@
+{
+  "title": "Timed Assessment Demo",
+  "language": "en",
+  "mainLibrary": "H5P.TimedAssessment",
+  "embedTypes": [
+    "div"
+  ],
+  "license": "U",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.TimedAssessment",
+      "majorVersion": 1,
+      "minorVersion": 0
+    }
+  ]
+}

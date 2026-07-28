@@ -1,0 +1,43 @@
+{
+  "title": "Timed Assessment",
+  "machineName": "H5P.TimedAssessment",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 0,
+  "runnable": 1,
+
+  "author": "Luis Condor",
+
+  "license": "U",
+
+  "description": "Advanced assessment content type with timers and progressive reveal.",
+
+  "coreApi": {
+    "majorVersion": 1,
+    "minorVersion": 24
+  },
+
+  "embedTypes": [
+    "div"
+  ],
+
+  "fullscreen": "1",
+
+  "preloadedJs": [
+    {
+      "path": "scripts/TimedAssessment.js"
+    }
+  ],
+
+  "preloadedCss": [
+    {
+      "path": "styles/TimedAssessment.css"
+    }
+  ],
+
+  "preloadedDependencies": [],
+
+  "metadataSettings": {
+    "disable": false
+  }
+}
