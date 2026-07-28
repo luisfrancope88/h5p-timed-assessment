@@ -160,7 +160,7 @@ H5P.TimedAssessment = (function () {
     $questionCard.append(
       H5P.jQuery('<p>', {
         class: 'timed-assessment-question-text',
-        text: question.questionText || ''
+        text: self.decodeHTML(question.questionText)
       })
     );
 
@@ -249,7 +249,7 @@ H5P.TimedAssessment = (function () {
 
       $label.append(
         H5P.jQuery('<span>', {
-          text: answer.answerText || ''
+          text: self.decodeHTML(answer.answerText)
         })
       );
 
