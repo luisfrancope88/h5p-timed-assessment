@@ -214,13 +214,10 @@ H5P.TimedAssessment = (function () {
       class: 'timed-assessment-navigation'
     });
 
-    var isLastQuestion =
-      this.currentQuestion === this.questions.length - 1;
-
     var $nextButton = H5P.jQuery('<button>', {
       type: 'button',
       class: 'timed-assessment-next',
-      text: isLastQuestion ? 'Finish' : 'Next question'
+      text: 'Check'
     });
 
     $nextButton.on('click', function () {
@@ -523,99 +520,113 @@ H5P.TimedAssessment = (function () {
     this.trigger(event);
   };
 
-  TimedAssessment.prototype.renderQuestionFeedback = function () {
-    var self = this;
-    var result = this.responses[this.currentQuestion];
-
-    if (!result) {
-      return;
-    }
-
-    this.$container.empty();
-
-    var $feedback = H5P.jQuery('<div>', {
-      class: 'timed-assessment-question-feedback'
-    });
-
-    var $status = H5P.jQuery('<div>', {
-      class:
-        'timed-assessment-question-feedback-status ' +
-        (result.correct
-          ? 'timed-assessment-feedback-correct'
-          : 'timed-assessment-feedback-incorrect')
-    });
-
-    $status.text(
-      result.correct ? '✓ Correct' : '× Incorrect'
-    );
-
-    $feedback.append($status);
-
-    $feedback.append(
-      H5P.jQuery('<div>', {
-        class: 'timed-assessment-question-feedback-score',
-        text: result.correct ? '1 / 1 point' : '0 / 1 point'
-      })
-    );
-
-    var isLastQuestion =
-      this.currentQuestion === this.questions.length - 1;
-
-    var $continue = H5P.jQuery('<button>', {
-      type: 'button',
-      class: 'timed-assessment-next',
-      text: isLastQuestion ? 'View results' : 'Continue'
-    });
-
-    $continue.on('click', function () {
-
-      if (isLastQuestion) {
-        self.renderFinished();
-        return;
-      }
-
-      self.currentQuestion += 1;
-      self.questionRevealed = false;
-      self.timeRemaining = 0;
-
-      self.render();
-    });
-
-    $feedback.append($continue);
-
-    this.$container.append($feedback);
-    this.trigger('resize');
-  };
-
-
-
   TimedAssessment.prototype.completeCurrentQuestion = function () {
+    var self = this;
+
     this.stopTimer();
 
+    // Save the current answer
     if (!this.responses[this.currentQuestion]) {
       this.saveCurrentResponse(false);
     }
 
+    var result = this.responses[this.currentQuestion];
     var behaviour = this.params.behaviour || {};
+
     var showScoreAfterQuestion =
       behaviour.showScoreAfterQuestion === true;
 
-    // Show intermediate feedback before continuing
+    var autoContinue =
+      behaviour.autoContinue === true;
+
+    var delay = Number(behaviour.autoContinueDelay);
+
+    if (!Number.isFinite(delay)) {
+      delay = 1500;
+    }
+
+    delay = Math.max(500, Math.min(10000, delay));
+
+    // Prevent changing the answer after Check
+    this.disableCurrentQuestion();
+
+    // Prevent pressing Check more than once
+    var $checkButton = this.$container.find(
+      '.timed-assessment-next'
+    );
+
+    $checkButton.prop('disabled', true);
+
+
+    // Show H5P score bar under the question
     if (showScoreAfterQuestion) {
-      this.renderQuestionFeedback();
+      var $feedback = H5P.jQuery('<div>', {
+        class: 'timed-assessment-inline-feedback'
+      });
+
+      if (H5P.JoubelUI && H5P.JoubelUI.createScoreBar) {
+        var scoreBar = H5P.JoubelUI.createScoreBar(1);
+
+        scoreBar.setScore(
+          result && result.correct ? 1 : 0
+        );
+
+        scoreBar.appendTo($feedback);
+      }
+
+      $feedback.append(
+        H5P.jQuery('<div>', {
+          class:
+            'timed-assessment-inline-status ' +
+            (result && result.correct
+              ? 'timed-assessment-feedback-correct'
+              : 'timed-assessment-feedback-incorrect'),
+          text:
+            result && result.correct
+              ? '✓ Correct'
+              : '× Incorrect'
+        })
+      );
+
+      $checkButton
+        .closest('.timed-assessment-navigation')
+        .before($feedback);
+
+      this.trigger('resize');
+    }
+
+
+    // Function used to advance
+    var advance = function () {
+      if (self.currentQuestion < self.questions.length - 1) {
+        self.currentQuestion += 1;
+        self.questionRevealed = false;
+        self.timeRemaining = 0;
+        self.render();
+        return;
+      }
+
+      self.renderFinished();
+    };
+
+
+    // Automatic progression
+    if (autoContinue) {
+      window.setTimeout(advance, delay);
       return;
     }
 
-    // Normal flow without intermediate feedback
-    if (this.currentQuestion < this.questions.length - 1) {
-      this.currentQuestion += 1;
-      this.questionRevealed = false;
-      this.timeRemaining = 0;
-      this.render();
-      return;
-    }
 
-    this.renderFinished();
+    // Manual progression
+    $checkButton
+      .prop('disabled', false)
+      .text(
+        this.currentQuestion === this.questions.length - 1
+          ? 'View results'
+          : 'Continue'
+      )
+      .off('click')
+      .on('click', advance);
   };
 
 

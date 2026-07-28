@@ -147,6 +147,24 @@
         "description": "Show the learner whether the question was answered correctly before continuing.",
         "default": false
       },
+
+      {
+        "name": "autoContinue",
+        "type": "boolean",
+        "label": "Automatically continue to the next question",
+        "description": "Automatically proceed to the next hidden question after checking the answer.",
+        "default": true
+      },
+      {
+        "name": "autoContinueDelay",
+        "type": "number",
+        "label": "Delay before continuing (milliseconds)",
+        "description": "Time the question score remains visible before proceeding to the next hidden question.",
+        "default": 1500,
+        "min": 500,
+        "max": 10000,
+        "step": 500
+      },
       {
         "name": "showLearnerAnswers",
         "type": "boolean",

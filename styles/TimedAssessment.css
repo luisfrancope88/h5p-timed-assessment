@@ -781,3 +781,62 @@
   font-size: 1.4em;
   font-weight: 600;
 }
+
+/* =========================================================
+   INLINE SCORE FEEDBACK AFTER CHECK
+   ========================================================= */
+
+.timed-assessment-inline-feedback {
+  margin-top: 1.25em;
+  padding-top: 1em;
+
+  border-top: 1px solid var(--ta-border);
+}
+
+
+/* H5P score bar spacing */
+
+.timed-assessment-inline-feedback
+.h5p-joubelui-score-bar {
+  margin-bottom: 0.75em;
+}
+
+
+/* Correct / Incorrect message */
+
+.timed-assessment-inline-status {
+  display: inline-block;
+
+  margin-top: 0.5em;
+  padding: 0.35em 0.8em;
+
+  border-radius: 2em;
+
+  font-weight: 600;
+}
+
+
+/* Correct */
+
+.timed-assessment-inline-status.timed-assessment-feedback-correct {
+  color: var(--ta-success);
+  background: var(--ta-success-bg);
+}
+
+
+/* Incorrect */
+
+.timed-assessment-inline-status.timed-assessment-feedback-incorrect {
+  color: var(--ta-error);
+  background: var(--ta-error-bg);
+}
+
+
+/* Disabled Check button */
+
+.timed-assessment-next:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
