@@ -523,20 +523,96 @@ H5P.TimedAssessment = (function () {
     this.trigger(event);
   };
 
+  TimedAssessment.prototype.renderQuestionFeedback = function () {
+    var self = this;
+    var result = this.responses[this.currentQuestion];
+
+    if (!result) {
+      return;
+    }
+
+    this.$container.empty();
+
+    var $feedback = H5P.jQuery('<div>', {
+      class: 'timed-assessment-question-feedback'
+    });
+
+    var $status = H5P.jQuery('<div>', {
+      class:
+        'timed-assessment-question-feedback-status ' +
+        (result.correct
+          ? 'timed-assessment-feedback-correct'
+          : 'timed-assessment-feedback-incorrect')
+    });
+
+    $status.text(
+      result.correct ? '✓ Correct' : '× Incorrect'
+    );
+
+    $feedback.append($status);
+
+    $feedback.append(
+      H5P.jQuery('<div>', {
+        class: 'timed-assessment-question-feedback-score',
+        text: result.correct ? '1 / 1 point' : '0 / 1 point'
+      })
+    );
+
+    var isLastQuestion =
+      this.currentQuestion === this.questions.length - 1;
+
+    var $continue = H5P.jQuery('<button>', {
+      type: 'button',
+      class: 'timed-assessment-next',
+      text: isLastQuestion ? 'View results' : 'Continue'
+    });
+
+    $continue.on('click', function () {
+
+      if (isLastQuestion) {
+        self.renderFinished();
+        return;
+      }
+
+      self.currentQuestion += 1;
+      self.questionRevealed = false;
+      self.timeRemaining = 0;
+
+      self.render();
+    });
+
+    $feedback.append($continue);
+
+    this.$container.append($feedback);
+    this.trigger('resize');
+  };
+
+
 
   TimedAssessment.prototype.completeCurrentQuestion = function () {
     this.stopTimer();
 
     if (!this.responses[this.currentQuestion]) {
-    this.saveCurrentResponse(false);
+      this.saveCurrentResponse(false);
     }
 
+    var behaviour = this.params.behaviour || {};
+    var showScoreAfterQuestion =
+      behaviour.showScoreAfterQuestion === true;
+
+    // Show intermediate feedback before continuing
+    if (showScoreAfterQuestion) {
+      this.renderQuestionFeedback();
+      return;
+    }
+
+    // Normal flow without intermediate feedback
     if (this.currentQuestion < this.questions.length - 1) {
-    this.currentQuestion += 1;
-    this.questionRevealed = false;
-    this.timeRemaining = 0;
-    this.render();
-    return;
+      this.currentQuestion += 1;
+      this.questionRevealed = false;
+      this.timeRemaining = 0;
+      this.render();
+      return;
     }
 
     this.renderFinished();
@@ -663,7 +739,17 @@ H5P.TimedAssessment = (function () {
   };
 
   TimedAssessment.prototype.isPassed = function () {
-      return this.getScore() >= this.getMaxScore() * 0.5;
+    var behaviour = this.params.behaviour || {};
+    var passingScore = Number(behaviour.passingScore);
+
+    if (!Number.isFinite(passingScore)) {
+      passingScore = 50;
+    }
+
+    passingScore = Math.max(0, Math.min(100, passingScore));
+
+    return this.getScore() >=
+      this.getMaxScore() * (passingScore / 100);
   };
   
   TimedAssessment.prototype.getXAPIData = function () {
@@ -745,7 +831,11 @@ H5P.TimedAssessment = (function () {
       })
     );
 
-    // H5P standard score bar
+    // Final score
+    var behaviour = this.params.behaviour || {};
+    var showFinalScore = behaviour.showFinalScore !== false;
+
+    if (showFinalScore) {
       var $score = H5P.jQuery('<div>', {
         class: 'timed-assessment-score'
       });
@@ -762,7 +852,6 @@ H5P.TimedAssessment = (function () {
         scoreBar.appendTo($score);
       }
       else {
-        // Fallback if JoubelUI is unavailable
         $score.append(
           H5P.jQuery('<strong>', {
             text:
@@ -772,9 +861,10 @@ H5P.TimedAssessment = (function () {
               this.getMaxScore()
           })
         );
-      }
+    }
 
-      $finished.append($score);
+    $finished.append($score);
+  }
 
     // Results for each question
     var $results = H5P.jQuery('<div>', {
@@ -830,30 +920,45 @@ H5P.TimedAssessment = (function () {
 
       var responseText = self.getResponseText(question, result);
       var correctAnswerText = self.getCorrectAnswerText(question);
-      
-      var $details = H5P.jQuery('<div>', {
-        class: 'timed-assessment-result-details'
-      });
 
-      $details.append(
-        H5P.jQuery('<p>').append(
-          H5P.jQuery('<strong>', {
-            text: 'Your answer: '
-          }),
-          document.createTextNode(responseText)
-        )
-      );
+      var behaviour = self.params.behaviour || {};
 
-      $details.append(
-        H5P.jQuery('<p>').append(
-          H5P.jQuery('<strong>', {
-            text: 'Correct answer: '
-          }),
-          document.createTextNode(correctAnswerText)
-        )
-      );
+      var showLearnerAnswers =
+        behaviour.showLearnerAnswers !== false;
 
-      $result.append($details);
+      var showCorrectAnswers =
+        behaviour.showCorrectAnswers !== false;
+
+      if (showLearnerAnswers || showCorrectAnswers) {
+
+        var $details = H5P.jQuery('<div>', {
+          class: 'timed-assessment-result-details'
+        });
+
+        if (showLearnerAnswers) {
+          $details.append(
+            H5P.jQuery('<p>').append(
+              H5P.jQuery('<strong>', {
+                text: 'Your answer: '
+              }),
+              document.createTextNode(responseText)
+            )
+          );
+        }
+
+        if (showCorrectAnswers) {
+          $details.append(
+            H5P.jQuery('<p>').append(
+              H5P.jQuery('<strong>', {
+                text: 'Correct answer: '
+              }),
+              document.createTextNode(correctAnswerText)
+            )
+          );
+        }
+
+        $result.append($details);
+      }
 
       $results.append($result);
     });

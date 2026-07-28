@@ -722,3 +722,62 @@
     white-space: normal;
   }
 }
+
+/* =========================================================
+   QUESTION FEEDBACK
+   ========================================================= */
+
+.timed-assessment-question-feedback {
+  max-width: 32em;
+  margin: 2em auto;
+  padding: 2em;
+
+  background: var(--ta-surface);
+  border: 1px solid var(--ta-border);
+  border-radius: 0.6em;
+
+  text-align: center;
+
+  box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.08);
+}
+
+
+/* Correct / Incorrect badge */
+
+.timed-assessment-question-feedback-status {
+  display: inline-block;
+
+  margin-bottom: 0.8em;
+  padding: 0.45em 1em;
+
+  border-radius: 2em;
+
+  font-size: 1.15em;
+  font-weight: 600;
+}
+
+
+/* Correct */
+
+.timed-assessment-feedback-correct {
+  color: var(--ta-success);
+  background: var(--ta-success-bg);
+}
+
+
+/* Incorrect */
+
+.timed-assessment-feedback-incorrect {
+  color: var(--ta-error);
+  background: var(--ta-error-bg);
+}
+
+
+/* Score: 1 / 1 */
+
+.timed-assessment-question-feedback-score {
+  margin-bottom: 1.5em;
+
+  font-size: 1.4em;
+  font-weight: 600;
+}
