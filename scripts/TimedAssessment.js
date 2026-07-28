@@ -745,18 +745,36 @@ H5P.TimedAssessment = (function () {
       })
     );
 
-    // Score
-    var $score = H5P.jQuery('<div>', {
-      class: 'timed-assessment-score'
-    });
+    // H5P standard score bar
+      var $score = H5P.jQuery('<div>', {
+        class: 'timed-assessment-score'
+      });
 
-    $score.append(
-      H5P.jQuery('<strong>', {
-        text: 'Score: ' + this.score + ' / ' + this.questions.length
-      })
-    );
+      if (H5P.JoubelUI && H5P.JoubelUI.createScoreBar) {
+        var scoreBar = H5P.JoubelUI.createScoreBar(
+          this.getMaxScore()
+        );
 
-    $finished.append($score);
+        scoreBar.setScore(
+          this.getScore()
+        );
+
+        scoreBar.appendTo($score);
+      }
+      else {
+        // Fallback if JoubelUI is unavailable
+        $score.append(
+          H5P.jQuery('<strong>', {
+            text:
+              'Score: ' +
+              this.getScore() +
+              ' / ' +
+              this.getMaxScore()
+          })
+        );
+      }
+
+      $finished.append($score);
 
     // Results for each question
     var $results = H5P.jQuery('<div>', {
