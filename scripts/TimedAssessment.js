@@ -435,6 +435,11 @@ H5P.TimedAssessment = (function () {
   };
 
   this.recalculateScore();
+
+  this.triggerAnswered(
+  this.currentQuestion,
+  this.responses[this.currentQuestion]
+  );  
   };
 
   TimedAssessment.prototype.recalculateScore = function () {
@@ -442,6 +447,42 @@ H5P.TimedAssessment = (function () {
     return total + (result && result.correct ? 1 : 0);
   }, 0);
   };
+
+  TimedAssessment.prototype.recalculateScore = function () {
+  this.score = this.responses.reduce(function (total, result) {
+    return total + (result && result.correct ? 1 : 0);
+  }, 0);
+  };
+
+
+  // NUEVO: enviar evento xAPI "answered"
+  TimedAssessment.prototype.triggerAnswered = function (
+    questionIndex,
+    result
+  ) {
+    if (!result) {
+      return;
+    }
+
+    var question = this.questions[questionIndex];
+    var responseText = this.getResponseText(question, result);
+
+    var event = this.createXAPIEventTemplate('answered');
+
+    event.setScoredResult(
+      result.correct ? 1 : 0,
+      1,
+      this,
+      true,
+      result.correct
+    );
+
+    event.data.statement.result.response =
+      responseText === 'No answer' ? '' : responseText;
+
+    this.trigger(event);
+  };
+
 
   TimedAssessment.prototype.completeCurrentQuestion = function () {
     this.stopTimer();
