@@ -620,17 +620,23 @@ H5P.TimedAssessment = (function () {
     var score = this.getScore();
     var maxScore = this.getMaxScore();
 
-    var event = this.createXAPIEventTemplate('completed');
-
-    event.setScoredResult(
+    // Resultado puntuado del examen
+    this.triggerXAPIScored(
       score,
       maxScore,
-      this,
+      'completed',
       true,
       this.isPassed()
     );
 
-    this.trigger(event);
+    // Estado explícito Passed / Failed
+    this.triggerXAPIScored(
+      score,
+      maxScore,
+      this.isPassed() ? 'passed' : 'failed',
+      true,
+      this.isPassed()
+    );
   };
 
 
