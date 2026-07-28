@@ -410,17 +410,19 @@ H5P.TimedAssessment = (function () {
       .find('.timed-assessment-free-text')
       .val() || '';
 
-    var expected = (question.expectedAnswer || '')
-      .trim()
-      .toLowerCase();
-
     var given = response
       .trim()
       .toLowerCase();
 
-    correct =
-      expected !== '' &&
-      given === expected;
+    var acceptedAnswers = question.acceptedAnswers || [];
+
+    correct = acceptedAnswers.some(function (item) {
+      var accepted = (item.acceptedAnswer || '')
+        .trim()
+        .toLowerCase();
+
+      return accepted !== '' && given === accepted;
+    });
   }
 
   this.responses[this.currentQuestion] = {
@@ -531,7 +533,18 @@ H5P.TimedAssessment = (function () {
     }
 
     if (type === 'freeText') {
-      return question.expectedAnswer || 'Not specified';
+      var acceptedAnswers = question.acceptedAnswers || [];
+
+      if (acceptedAnswers.length === 0) {
+        return 'Not specified';
+      }
+
+      return acceptedAnswers
+        .map(function (item) {
+          return self.decodeHTML(item.acceptedAnswer || '');
+        })
+        .filter(Boolean)
+        .join(', ');
     }
 
     return 'Not specified';

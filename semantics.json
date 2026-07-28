@@ -99,13 +99,22 @@
             }
           ]
         },
+
         {
-          "name": "expectedAnswer",
-          "type": "text",
-          "label": "Expected answer",
-          "description": "Optional reference answer for free response questions.",
-          "optional": true
+          "name": "acceptedAnswers",
+          "type": "list",
+          "label": "Accepted answers",
+          "description": "Add all answers that should be considered correct.",
+          "optional": true,
+          "entity": "Accepted answer",
+          "min": 1,
+          "field": {
+            "name": "acceptedAnswer",
+            "type": "text",
+            "label": "Answer"
+          }
         }
+        
       ]
     }
   }
