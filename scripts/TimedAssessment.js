@@ -455,6 +455,70 @@ H5P.TimedAssessment = (function () {
     this.renderFinished();
   };
 
+  TimedAssessment.prototype.getResponseText = function (question, result) {
+    if (!result || result.response === null || result.response === undefined) {
+      return 'No answer';
+    }
+
+    var type = question.questionType || 'singleChoice';
+
+    if (type === 'singleChoice') {
+      var answer = (question.answers || [])[result.response];
+      return answer ? answer.answerText : 'No answer';
+    }
+
+    if (type === 'multipleChoice') {
+      if (!Array.isArray(result.response) || result.response.length === 0) {
+        return 'No answer';
+      }
+
+      return result.response
+        .map(function (index) {
+          var answer = (question.answers || [])[index];
+          return answer ? answer.answerText : '';
+        })
+        .filter(Boolean)
+        .join(', ');
+    }
+
+    if (type === 'trueFalse') {
+      return result.response === 'true' ? 'True' : 'False';
+    }
+
+    if (type === 'freeText') {
+      return result.response.trim() || 'No answer';
+    }
+
+    return 'No answer';
+  };
+
+
+  TimedAssessment.prototype.getCorrectAnswerText = function (question) {
+    var type = question.questionType || 'singleChoice';
+
+    if (type === 'singleChoice' || type === 'multipleChoice') {
+      return (question.answers || [])
+        .filter(function (answer) {
+          return answer.correct;
+        })
+        .map(function (answer) {
+          return answer.answerText;
+        })
+        .join(', ') || 'Not specified';
+    }
+
+    if (type === 'trueFalse') {
+      return question.trueFalseAnswer === 'true' ? 'True' : 'False';
+    }
+
+    if (type === 'freeText') {
+      return question.expectedAnswer || 'Not specified';
+    }
+
+    return 'Not specified';
+  };
+
+
   TimedAssessment.prototype.renderFinished = function () {
     var self = this;
 
@@ -542,6 +606,33 @@ H5P.TimedAssessment = (function () {
           text: question.questionText || ''
         })
       );
+
+      var responseText = self.getResponseText(question, result);
+      var correctAnswerText = self.getCorrectAnswerText(question);
+      
+      var $details = H5P.jQuery('<div>', {
+        class: 'timed-assessment-result-details'
+      });
+
+      $details.append(
+        H5P.jQuery('<p>').append(
+          H5P.jQuery('<strong>', {
+            text: 'Your answer: '
+          }),
+          document.createTextNode(responseText)
+        )
+      );
+
+      $details.append(
+        H5P.jQuery('<p>').append(
+          H5P.jQuery('<strong>', {
+            text: 'Correct answer: '
+          }),
+          document.createTextNode(correctAnswerText)
+        )
+      );
+
+      $result.append($details);
 
       $results.append($result);
     });

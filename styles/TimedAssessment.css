@@ -256,3 +256,15 @@
   margin: 12px 0 0;
   overflow-wrap: anywhere;
 }
+
+.timed-assessment-result-details {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #eeeeee;
+}
+
+.timed-assessment-result-details p {
+  margin: 6px 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
