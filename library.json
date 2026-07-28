@@ -35,7 +35,13 @@
     }
   ],
 
-  "preloadedDependencies": [],
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.JoubelUI",
+      "majorVersion": 1,
+      "minorVersion": 3
+    }
+  ],
 
   "metadataSettings": {
     "disable": 0,
