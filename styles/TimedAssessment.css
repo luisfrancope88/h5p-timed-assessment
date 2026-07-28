@@ -268,3 +268,89 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
+
+/* =========================================================
+   TIMED ASSESSMENT — H5P VISUAL SYSTEM
+   ========================================================= */
+
+.timed-assessment {
+  /* Main palette */
+  --ta-primary: #1a73d9;
+  --ta-primary-hover: #1463bd;
+
+  /* Feedback */
+  --ta-success: #25864b;
+  --ta-success-bg: #d9f0e2;
+
+  --ta-error: #c62828;
+  --ta-error-bg: #f8dddd;
+
+  /* Neutral interface */
+  --ta-text: #222;
+  --ta-muted: #666;
+  --ta-border: #d8d8d8;
+  --ta-surface: #fff;
+  --ta-surface-soft: #f7f7f7;
+
+  color: var(--ta-text);
+  background: var(--ta-surface);
+}
+
+
+/* Main question card */
+
+.timed-assessment-question-card {
+  background: var(--ta-surface);
+  border: 1px solid var(--ta-border);
+  border-radius: 0.6em;
+}
+
+
+/* Main action buttons */
+
+.timed-assessment-next,
+.timed-assessment-reveal {
+  background: var(--ta-primary);
+  color: #fff;
+
+  border: 0;
+  border-radius: 2em;
+
+  padding: 0.7em 1.4em;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+/* Hover */
+
+.timed-assessment-next:hover,
+.timed-assessment-reveal:hover {
+  background: var(--ta-primary-hover);
+  box-shadow: 0 0.15em 0.4em rgba(0, 0, 0, 0.18);
+}
+
+
+/* Click */
+
+.timed-assessment-next:active,
+.timed-assessment-reveal:active {
+  transform: translateY(1px);
+}
+
+
+/* Keyboard accessibility */
+
+.timed-assessment-next:focus-visible,
+.timed-assessment-reveal:focus-visible {
+  outline: 3px solid rgba(26, 115, 217, 0.35);
+  outline-offset: 3px;
+}
