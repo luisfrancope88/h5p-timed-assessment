@@ -8,7 +8,7 @@
 
   "author": "Luis Condor",
 
-  "license": "U",
+  "license": "MIT",
 
   "description": "Advanced assessment content type with timers and progressive reveal.",
 
@@ -18,10 +18,10 @@
   },
 
   "embedTypes": [
-    "div"
+    "iframe"
   ],
 
-  "fullscreen": "1",
+  "fullscreen": 1,
 
   "preloadedJs": [
     {
@@ -38,6 +38,7 @@
   "preloadedDependencies": [],
 
   "metadataSettings": {
-    "disable": false
+    "disable": 0,
+    "disableExtraTitleField": 1
   }
 }

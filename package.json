@@ -1,0 +1,12 @@
+{
+  "name": "timed-assessment",
+  "version": "1.0.0",
+  "description": "H5P Timed Assessment",
+  "private": true,
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1"
+  }
+}

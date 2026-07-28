@@ -5,7 +5,7 @@
   "embedTypes": [
     "div"
   ],
-  "license": "U",
+  "license": "CC BY",
   "preloadedDependencies": [
     {
       "machineName": "H5P.TimedAssessment",

@@ -1,0 +1,13 @@
+# Node dependencies
+node_modules/
+
+# Generated H5P packages and builds
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
