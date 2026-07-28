@@ -3,96 +3,213 @@ H5P.TimedAssessment = (function () {
   function TimedAssessment(params, contentId) {
     this.params = params || {};
     this.contentId = contentId;
+
+    this.questions = this.params.questions || [];
+    this.currentQuestion = 0;
+    this.timer = null;
+    this.timeRemaining = 0;
+    this.questionRevealed = false;
   }
 
   TimedAssessment.prototype.attach = function ($container) {
+    this.$container = $container;
+
+    this.$container.empty();
+    this.$container.addClass('timed-assessment');
+
+    this.render();
+  };
+
+  TimedAssessment.prototype.render = function () {
     var self = this;
 
-    $container.empty();
-    $container.addClass('timed-assessment');
+    this.stopTimer();
+    this.$container.empty();
 
-    var title = self.params.assessmentTitle || 'Timed Assessment';
-    var questions = self.params.questions || [];
+    var title = this.params.assessmentTitle || 'Timed Assessment';
 
     var $assessment = H5P.jQuery('<div>', {
       class: 'timed-assessment-container'
     });
 
-    var $title = H5P.jQuery('<h2>', {
-      class: 'timed-assessment-title',
-      text: title
-    });
+    $assessment.append(
+      H5P.jQuery('<h2>', {
+        class: 'timed-assessment-title',
+        text: title
+      })
+    );
 
-    $assessment.append($title);
-
-    if (questions.length === 0) {
+    if (this.questions.length === 0) {
       $assessment.append(
         H5P.jQuery('<p>', {
           text: 'No questions have been added.'
         })
       );
 
-      $container.append($assessment);
+      this.$container.append($assessment);
       return;
     }
 
-    questions.forEach(function (question, index) {
-      var $question = H5P.jQuery('<div>', {
-        class: 'timed-assessment-question'
-      });
+    var question = this.questions[this.currentQuestion];
 
-      $question.append(
-        H5P.jQuery('<h3>', {
-          text: 'Question ' + (index + 1)
-        })
-      );
+    $assessment.append(
+      H5P.jQuery('<div>', {
+        class: 'timed-assessment-progress',
+        text:
+          'Question ' +
+          (this.currentQuestion + 1) +
+          ' of ' +
+          this.questions.length
+      })
+    );
 
-      $question.append(
-        H5P.jQuery('<p>', {
-          class: 'timed-assessment-question-text',
-          text: question.questionText || ''
-        })
-      );
-
-      $question.append(
-        H5P.jQuery('<div>', {
-          class: 'timed-assessment-time',
-          text: 'Time: ' + (question.timeLimit || 60) + ' seconds'
-        })
-      );
-
-      var $answerArea = H5P.jQuery('<div>', {
-        class: 'timed-assessment-answer-area'
-      });
-
-      renderQuestionInput(question, index, $answerArea);
-
-      $question.append($answerArea);
-      $assessment.append($question);
+    var $questionCard = H5P.jQuery('<div>', {
+      class: 'timed-assessment-question-card'
     });
 
-    $container.append($assessment);
+    if (!this.questionRevealed) {
+      var $locked = H5P.jQuery('<div>', {
+        class: 'timed-assessment-locked'
+      });
+
+      $locked.append(
+        H5P.jQuery('<div>', {
+          class: 'timed-assessment-lock',
+          text: '🔒'
+        })
+      );
+
+      $locked.append(
+        H5P.jQuery('<p>', {
+          text: 'The question is hidden.'
+        })
+      );
+
+      var $revealButton = H5P.jQuery('<button>', {
+        type: 'button',
+        class: 'timed-assessment-reveal',
+        text: 'Reveal question'
+      });
+
+      $revealButton.on('click', function () {
+        self.revealQuestion();
+      });
+
+      $locked.append($revealButton);
+      $questionCard.append($locked);
+    }
+    else {
+      this.renderQuestion(question, $questionCard);
+    }
+
+    $assessment.append($questionCard);
+    this.$container.append($assessment);
   };
 
-  function renderQuestionInput(question, questionIndex, $answerArea) {
+  TimedAssessment.prototype.revealQuestion = function () {
+    var question = this.questions[this.currentQuestion];
+
+    this.questionRevealed = true;
+    this.timeRemaining = Number(question.timeLimit) || 60;
+
+    this.render();
+    this.startTimer();
+  };
+
+  TimedAssessment.prototype.renderQuestion = function (question, $questionCard) {
+    var self = this;
+
+    var $header = H5P.jQuery('<div>', {
+      class: 'timed-assessment-question-header'
+    });
+
+    $header.append(
+      H5P.jQuery('<strong>', {
+        text: 'Question ' + (this.currentQuestion + 1)
+      })
+    );
+
+    this.$timerDisplay = H5P.jQuery('<span>', {
+      class: 'timed-assessment-timer',
+      text: this.formatTime(this.timeRemaining)
+    });
+
+    $header.append(this.$timerDisplay);
+    $questionCard.append($header);
+
+    $questionCard.append(
+      H5P.jQuery('<p>', {
+        class: 'timed-assessment-question-text',
+        text: question.questionText || ''
+      })
+    );
+
+    var $answerArea = H5P.jQuery('<div>', {
+      class: 'timed-assessment-answer-area'
+    });
+
+    this.renderQuestionInput(
+      question,
+      this.currentQuestion,
+      $answerArea
+    );
+
+    $questionCard.append($answerArea);
+
+    var $navigation = H5P.jQuery('<div>', {
+      class: 'timed-assessment-navigation'
+    });
+
+    var isLastQuestion =
+      this.currentQuestion === this.questions.length - 1;
+
+    var $nextButton = H5P.jQuery('<button>', {
+      type: 'button',
+      class: 'timed-assessment-next',
+      text: isLastQuestion ? 'Finish' : 'Next question'
+    });
+
+    $nextButton.on('click', function () {
+      self.completeCurrentQuestion();
+    });
+
+    $navigation.append($nextButton);
+    $questionCard.append($navigation);
+  };
+
+  TimedAssessment.prototype.renderQuestionInput = function (
+    question,
+    questionIndex,
+    $answerArea
+  ) {
     var type = question.questionType || 'singleChoice';
 
     if (type === 'singleChoice' || type === 'multipleChoice') {
-      renderChoiceQuestion(question, questionIndex, type, $answerArea);
+      this.renderChoiceQuestion(
+        question,
+        questionIndex,
+        type,
+        $answerArea
+      );
       return;
     }
 
     if (type === 'trueFalse') {
-      renderTrueFalseQuestion(questionIndex, $answerArea);
+      this.renderTrueFalseQuestion(questionIndex, $answerArea);
       return;
     }
 
     if (type === 'freeText') {
-      renderFreeTextQuestion(questionIndex, $answerArea);
+      this.renderFreeTextQuestion(questionIndex, $answerArea);
     }
-  }
+  };
 
-  function renderChoiceQuestion(question, questionIndex, type, $answerArea) {
+  TimedAssessment.prototype.renderChoiceQuestion = function (
+    question,
+    questionIndex,
+    type,
+    $answerArea
+  ) {
     var answers = question.answers || [];
     var inputType = type === 'multipleChoice' ? 'checkbox' : 'radio';
     var inputName = 'timed-assessment-question-' + questionIndex;
@@ -102,13 +219,14 @@ H5P.TimedAssessment = (function () {
         class: 'timed-assessment-option'
       });
 
-      var $input = H5P.jQuery('<input>', {
-        type: inputType,
-        name: inputName,
-        value: answerIndex
-      });
+      $label.append(
+        H5P.jQuery('<input>', {
+          type: inputType,
+          name: inputName,
+          value: answerIndex
+        })
+      );
 
-      $label.append($input);
       $label.append(
         H5P.jQuery('<span>', {
           text: answer.answerText || ''
@@ -117,12 +235,18 @@ H5P.TimedAssessment = (function () {
 
       $answerArea.append($label);
     });
-  }
+  };
 
-  function renderTrueFalseQuestion(questionIndex, $answerArea) {
+  TimedAssessment.prototype.renderTrueFalseQuestion = function (
+    questionIndex,
+    $answerArea
+  ) {
     var inputName = 'timed-assessment-question-' + questionIndex;
 
-    ['True', 'False'].forEach(function (label, index) {
+    [
+      { value: 'true', label: 'True' },
+      { value: 'false', label: 'False' }
+    ].forEach(function (option) {
       var $label = H5P.jQuery('<label>', {
         class: 'timed-assessment-option'
       });
@@ -131,30 +255,126 @@ H5P.TimedAssessment = (function () {
         H5P.jQuery('<input>', {
           type: 'radio',
           name: inputName,
-          value: index === 0 ? 'true' : 'false'
+          value: option.value
         })
       );
 
       $label.append(
         H5P.jQuery('<span>', {
-          text: label
+          text: option.label
         })
       );
 
       $answerArea.append($label);
     });
-  }
+  };
 
-  function renderFreeTextQuestion(questionIndex, $answerArea) {
+  TimedAssessment.prototype.renderFreeTextQuestion = function (
+    questionIndex,
+    $answerArea
+  ) {
     $answerArea.append(
       H5P.jQuery('<textarea>', {
         class: 'timed-assessment-free-text',
         name: 'timed-assessment-question-' + questionIndex,
-        rows: 4,
+        rows: 5,
         placeholder: 'Write your answer here...'
       })
     );
-  }
+  };
+
+  TimedAssessment.prototype.startTimer = function () {
+    var self = this;
+
+    this.stopTimer();
+
+    this.timer = window.setInterval(function () {
+      self.timeRemaining -= 1;
+
+      if (self.$timerDisplay) {
+        self.$timerDisplay.text(
+          self.formatTime(self.timeRemaining)
+        );
+      }
+
+      if (self.timeRemaining <= 0) {
+        self.timeRemaining = 0;
+        self.stopTimer();
+        self.timeExpired();
+      }
+    }, 1000);
+  };
+
+  TimedAssessment.prototype.stopTimer = function () {
+    if (this.timer !== null) {
+      window.clearInterval(this.timer);
+      this.timer = null;
+    }
+  };
+
+  TimedAssessment.prototype.timeExpired = function () {
+    this.disableCurrentQuestion();
+
+    if (this.$timerDisplay) {
+      this.$timerDisplay.text('00:00');
+    }
+  };
+
+  TimedAssessment.prototype.disableCurrentQuestion = function () {
+    this.$container
+      .find('input, textarea')
+      .prop('disabled', true);
+  };
+
+  TimedAssessment.prototype.completeCurrentQuestion = function () {
+    this.stopTimer();
+
+    if (this.currentQuestion < this.questions.length - 1) {
+      this.currentQuestion += 1;
+      this.questionRevealed = false;
+      this.timeRemaining = 0;
+      this.render();
+      return;
+    }
+
+    this.renderFinished();
+  };
+
+  TimedAssessment.prototype.renderFinished = function () {
+    this.stopTimer();
+    this.$container.empty();
+
+    var $finished = H5P.jQuery('<div>', {
+      class: 'timed-assessment-finished'
+    });
+
+    $finished.append(
+      H5P.jQuery('<h2>', {
+        text: this.params.assessmentTitle || 'Timed Assessment'
+      })
+    );
+
+    $finished.append(
+      H5P.jQuery('<p>', {
+        text: 'Assessment completed.'
+      })
+    );
+
+    this.$container.append($finished);
+  };
+
+  TimedAssessment.prototype.formatTime = function (seconds) {
+    seconds = Math.max(0, Number(seconds) || 0);
+
+    var minutes = Math.floor(seconds / 60);
+    var remainingSeconds = seconds % 60;
+
+    return (
+      String(minutes).padStart(2, '0') +
+      ':' +
+      String(remainingSeconds).padStart(2, '0')
+    );
+  };
 
   return TimedAssessment;
 
