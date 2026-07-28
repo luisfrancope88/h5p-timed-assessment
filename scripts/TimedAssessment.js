@@ -417,9 +417,11 @@ H5P.TimedAssessment = (function () {
     var acceptedAnswers = question.acceptedAnswers || [];
 
     correct = acceptedAnswers.some(function (item) {
-      var accepted = (item.acceptedAnswer || '')
-        .trim()
-        .toLowerCase();
+      var accepted = typeof item === 'string'
+        ? item
+        : (item.acceptedAnswer || '');
+
+      accepted = accepted.trim().toLowerCase();
 
       return accepted !== '' && given === accepted;
     });
@@ -541,7 +543,11 @@ H5P.TimedAssessment = (function () {
 
       return acceptedAnswers
         .map(function (item) {
-          return self.decodeHTML(item.acceptedAnswer || '');
+          var answer = typeof item === 'string'
+            ? item
+            : (item.acceptedAnswer || '');
+
+          return self.decodeHTML(answer);
         })
         .filter(Boolean)
         .join(', ');
