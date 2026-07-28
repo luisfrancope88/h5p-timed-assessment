@@ -12,12 +12,29 @@ H5P.TimedAssessment = (function () {
   }
 
   TimedAssessment.prototype.attach = function ($container) {
-    this.$container = $container;
+  var self = this;
 
-    this.$container.empty();
-    this.$container.addClass('timed-assessment');
+  this.$container = $container;
 
-    this.render();
+  this.$container.empty();
+  this.$container.addClass('timed-assessment');
+
+  this.render();
+
+  // Recalculate the H5P container when its dimensions change,
+  // for example when accessibility text size is increased.
+  if (window.ResizeObserver) {
+    this.resizeObserver = new ResizeObserver(function () {
+      self.trigger('resize');
+    });
+
+    this.resizeObserver.observe(this.$container.get(0));
+  }
+
+  // Additional resize after initial rendering.
+  window.setTimeout(function () {
+    self.trigger('resize');
+  }, 100);
   };
 
   TimedAssessment.prototype.render = function () {
