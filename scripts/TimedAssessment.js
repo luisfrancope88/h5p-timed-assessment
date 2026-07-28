@@ -230,6 +230,7 @@ H5P.TimedAssessment = (function () {
     type,
     $answerArea
   ) {
+    var self = this;
     var answers = question.answers || [];
     var inputType = type === 'multipleChoice' ? 'checkbox' : 'radio';
     var inputName = 'timed-assessment-question-' + questionIndex;
