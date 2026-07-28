@@ -11,6 +11,7 @@ H5P.TimedAssessment = (function () {
     this.questionRevealed = false;
     this.responses = [];
     this.score = 0;
+    this.completed = false;
   }
 
   TimedAssessment.prototype.attach = function ($container) {
@@ -555,12 +556,89 @@ H5P.TimedAssessment = (function () {
 
     return 'Not specified';
   };
+  
+  TimedAssessment.prototype.getScore = function () {
+      return this.score || 0;
+  };
+
+  TimedAssessment.prototype.getMaxScore = function () {
+      return this.questions.length;
+  };
+
+  TimedAssessment.prototype.getAnswerGiven = function () {
+      return this.responses.some(function (result) {
+        if (!result) {
+          return false;
+        }
+
+        if (Array.isArray(result.response)) {
+          return result.response.length > 0;
+        }
+
+        return result.response !== null &&
+          result.response !== undefined &&
+          result.response !== '';
+      });
+  };
+
+  TimedAssessment.prototype.isPassed = function () {
+      return this.getScore() >= this.getMaxScore() * 0.5;
+  };
+  
+  TimedAssessment.prototype.getXAPIData = function () {
+    return {
+      statement: this.getXAPIResult()
+    };
+  };
+
+  TimedAssessment.prototype.getXAPIResult = function () {
+  var score = this.getScore();
+  var maxScore = this.getMaxScore();
+
+   return {
+      result: {
+        score: {
+          raw: score,
+          min: 0,
+          max: maxScore,
+          scaled: maxScore > 0 ? score / maxScore : 0
+        },
+        success: this.isPassed(),
+        completion: true
+      }
+   };
+  };
+
+
+  TimedAssessment.prototype.triggerCompleted = function () {
+    if (this.completed) {
+      return;
+    }
+
+    this.completed = true;
+
+    var score = this.getScore();
+    var maxScore = this.getMaxScore();
+
+    var event = this.createXAPIEventTemplate('completed');
+
+    event.setScoredResult(
+      score,
+      maxScore,
+      this,
+      true,
+      this.isPassed()
+    );
+
+    this.trigger(event);
+  };
 
 
   TimedAssessment.prototype.renderFinished = function () {
     var self = this;
 
     this.stopTimer();
+    this.triggerCompleted();
     this.$container.empty();
 
     var $finished = H5P.jQuery('<div>', {
