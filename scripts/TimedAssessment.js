@@ -47,6 +47,7 @@ H5P.TimedAssessment = (function () {
       );
 
       this.$container.append($assessment);
+      this.trigger('resize');
       return;
     }
 
@@ -361,6 +362,7 @@ H5P.TimedAssessment = (function () {
     );
 
     this.$container.append($finished);
+    this.trigger('resize');
   };
 
   TimedAssessment.prototype.formatTime = function (seconds) {
