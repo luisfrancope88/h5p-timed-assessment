@@ -89,9 +89,42 @@ H5P.TimedAssessment = (function () {
     });
 
     if (!this.questionRevealed) {
+      var $blurredPreview = H5P.jQuery('<div>', {
+        class: 'timed-assessment-blurred-preview',
+        'aria-hidden': 'true'
+      });
+
+      $blurredPreview.append(
+        H5P.jQuery('<p>', {
+          class: 'timed-assessment-question-text',
+          text: self.decodeHTML(question.questionText || '')
+        })
+      );
+
+      var $blurredAnswers = H5P.jQuery('<div>', {
+        class: 'timed-assessment-blurred-answers'
+      });
+
+      $blurredAnswers.append(
+        H5P.jQuery('<div>', {
+          class: 'timed-assessment-blurred-answer'
+        }),
+        H5P.jQuery('<div>', {
+          class: 'timed-assessment-blurred-answer'
+        }),
+        H5P.jQuery('<div>', {
+          class: 'timed-assessment-blurred-answer'
+        })
+      );
+
+      $blurredPreview.append($blurredAnswers);
+      $questionCard.append($blurredPreview);
+      
       var $locked = H5P.jQuery('<div>', {
         class: 'timed-assessment-locked'
       });
+
+
 
       $locked.append(
         H5P.jQuery('<div>', {

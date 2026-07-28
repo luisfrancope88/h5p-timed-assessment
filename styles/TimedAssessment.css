@@ -460,3 +460,79 @@
     transform: scale(1.06);
   }
 }
+
+/* =========================================================
+   LOCKED QUESTION — BLURRED PREVIEW
+   ========================================================= */
+
+.timed-assessment-question-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.timed-assessment-blurred-preview {
+  padding: 1.5em;
+
+  filter: blur(6px);
+  opacity: 0.55;
+
+  user-select: none;
+  pointer-events: none;
+}
+
+.timed-assessment-blurred-preview
+.timed-assessment-question-text {
+  margin-top: 0.5em;
+}
+
+
+/* Fake blurred answer options */
+
+.timed-assessment-blurred-answer {
+  height: 3em;
+  margin-top: 0.75em;
+
+  background: var(--ta-surface-soft);
+  border: 1px solid var(--ta-border);
+  border-radius: 0.45em;
+}
+
+
+/* Overlay containing lock + button */
+
+.timed-assessment-locked {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1.5em;
+
+  background: rgba(255, 255, 255, 0.58);
+
+  text-align: center;
+}
+
+
+/* Lock */
+
+.timed-assessment-lock {
+  font-size: 2.2em;
+  line-height: 1;
+
+  margin-bottom: 0.25em;
+}
+
+
+/* Locked message */
+
+.timed-assessment-locked p {
+  margin: 0.5em 0 1em;
+
+  color: var(--ta-muted);
+  font-weight: 500;
+}
