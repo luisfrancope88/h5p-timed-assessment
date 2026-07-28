@@ -550,13 +550,6 @@
 
 .timed-assessment-score {
   margin: 1.5em 0;
-  padding: 1em 1.25em;
-
-  background: #f5f8fc;
-  border-left: 5px solid var(--ta-primary);
-  border-radius: 0.4em;
-
-  font-size: 1.15em;
 }
 
 
@@ -648,4 +641,84 @@
 .timed-assessment-result-details p {
   margin: 0.45em 0;
   line-height: 1.5;
+}
+
+/* =========================================================
+   RESPONSIVE & ACCESSIBILITY
+   ========================================================= */
+
+/* Evita desbordamientos */
+.timed-assessment,
+.timed-assessment-question-card,
+.timed-assessment-result {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.timed-assessment-question-text,
+.timed-assessment-option span,
+.timed-assessment-result-question,
+.timed-assessment-result-details {
+  overflow-wrap: anywhere;
+}
+
+
+/* Permite reorganizar elementos cuando aumenta el texto */
+.timed-assessment-question-header {
+  flex-wrap: wrap;
+  gap: 0.75em;
+}
+
+.timed-assessment-actions {
+  flex-wrap: wrap;
+}
+
+
+/* Foco visible para navegación con teclado */
+.timed-assessment button:focus-visible,
+.timed-assessment input:focus-visible,
+.timed-assessment textarea:focus-visible {
+  outline: 3px solid rgba(26, 115, 217, 0.45);
+  outline-offset: 3px;
+}
+
+
+/* Respeta la preferencia de reducir animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .timed-assessment *,
+  .timed-assessment *::before,
+  .timed-assessment *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+/* Pantallas pequeñas / contenedores H5P estrechos */
+@media (max-width: 600px) {
+
+  .timed-assessment {
+    padding: 1em;
+  }
+
+  .timed-assessment-question-card {
+    padding: 1em;
+  }
+
+  .timed-assessment-option {
+    padding: 0.8em;
+  }
+
+  .timed-assessment-result-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .timed-assessment-next,
+  .timed-assessment-reveal {
+    max-width: 100%;
+    white-space: normal;
+  }
 }
