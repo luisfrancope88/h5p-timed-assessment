@@ -204,3 +204,55 @@
 .timed-assessment-question-text {
   overflow-wrap: anywhere;
 }
+
+/* Results */
+
+.timed-assessment-completed {
+  margin-bottom: 20px;
+}
+
+.timed-assessment-score {
+  margin: 20px 0 30px;
+  padding: 18px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.timed-assessment-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.timed-assessment-result {
+  padding: 16px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+}
+
+.timed-assessment-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.timed-assessment-result-status {
+  font-weight: bold;
+}
+
+.timed-assessment-result-correct {
+  color: #167a32;
+}
+
+.timed-assessment-result-incorrect {
+  color: #b3261e;
+}
+
+.timed-assessment-result-question {
+  margin: 12px 0 0;
+  overflow-wrap: anywhere;
+}

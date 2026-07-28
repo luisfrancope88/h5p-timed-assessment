@@ -9,6 +9,8 @@ H5P.TimedAssessment = (function () {
     this.timer = null;
     this.timeRemaining = 0;
     this.questionRevealed = false;
+    this.responses = [];
+    this.score = 0;
   }
 
   TimedAssessment.prototype.attach = function ($container) {
@@ -331,10 +333,11 @@ H5P.TimedAssessment = (function () {
   };
 
   TimedAssessment.prototype.timeExpired = function () {
+    this.saveCurrentResponse(true);
     this.disableCurrentQuestion();
 
     if (this.$timerDisplay) {
-      this.$timerDisplay.text('00:00');
+    this.$timerDisplay.text('00:00');
     }
   };
 
@@ -343,22 +346,118 @@ H5P.TimedAssessment = (function () {
       .find('input, textarea')
       .prop('disabled', true);
   };
+  
+  TimedAssessment.prototype.saveCurrentResponse = function (timedOut) {
+  var question = this.questions[this.currentQuestion];
+  var type = question.questionType || 'singleChoice';
+  var response = null;
+  var correct = false;
+
+  if (type === 'singleChoice') {
+    var selected = this.$container
+      .find('input[type="radio"]:checked')
+      .val();
+
+    if (selected !== undefined) {
+      response = Number(selected);
+
+      var selectedAnswer = question.answers &&
+        question.answers[response];
+
+      correct = Boolean(
+        selectedAnswer && selectedAnswer.correct
+      );
+    }
+  }
+
+  else if (type === 'multipleChoice') {
+    response = [];
+
+    this.$container
+      .find('input[type="checkbox"]:checked')
+      .each(function () {
+        response.push(Number(H5P.jQuery(this).val()));
+      });
+
+    var correctIndexes = [];
+
+    (question.answers || []).forEach(function (answer, index) {
+      if (answer.correct) {
+        correctIndexes.push(index);
+      }
+    });
+
+    correct =
+      response.length === correctIndexes.length &&
+      response.every(function (value) {
+        return correctIndexes.indexOf(value) !== -1;
+      });
+  }
+
+  else if (type === 'trueFalse') {
+    response = this.$container
+      .find('input[type="radio"]:checked')
+      .val();
+
+    correct =
+      response !== undefined &&
+      response === question.trueFalseAnswer;
+  }
+
+  else if (type === 'freeText') {
+    response = this.$container
+      .find('.timed-assessment-free-text')
+      .val() || '';
+
+    var expected = (question.expectedAnswer || '')
+      .trim()
+      .toLowerCase();
+
+    var given = response
+      .trim()
+      .toLowerCase();
+
+    correct =
+      expected !== '' &&
+      given === expected;
+  }
+
+  this.responses[this.currentQuestion] = {
+    response: response,
+    correct: correct,
+    timedOut: Boolean(timedOut)
+  };
+
+  this.recalculateScore();
+  };
+
+  TimedAssessment.prototype.recalculateScore = function () {
+  this.score = this.responses.reduce(function (total, result) {
+    return total + (result && result.correct ? 1 : 0);
+  }, 0);
+  };
 
   TimedAssessment.prototype.completeCurrentQuestion = function () {
     this.stopTimer();
 
+    if (!this.responses[this.currentQuestion]) {
+    this.saveCurrentResponse(false);
+    }
+
     if (this.currentQuestion < this.questions.length - 1) {
-      this.currentQuestion += 1;
-      this.questionRevealed = false;
-      this.timeRemaining = 0;
-      this.render();
-      return;
+    this.currentQuestion += 1;
+    this.questionRevealed = false;
+    this.timeRemaining = 0;
+    this.render();
+    return;
     }
 
     this.renderFinished();
   };
 
   TimedAssessment.prototype.renderFinished = function () {
+    var self = this;
+
     this.stopTimer();
     this.$container.empty();
 
@@ -374,9 +473,80 @@ H5P.TimedAssessment = (function () {
 
     $finished.append(
       H5P.jQuery('<p>', {
+        class: 'timed-assessment-completed',
         text: 'Assessment completed.'
       })
     );
+
+    // Score
+    var $score = H5P.jQuery('<div>', {
+      class: 'timed-assessment-score'
+    });
+
+    $score.append(
+      H5P.jQuery('<strong>', {
+        text: 'Score: ' + this.score + ' / ' + this.questions.length
+      })
+    );
+
+    $finished.append($score);
+
+    // Results for each question
+    var $results = H5P.jQuery('<div>', {
+      class: 'timed-assessment-results'
+    });
+
+    this.questions.forEach(function (question, index) {
+      var result = self.responses[index];
+
+      var $result = H5P.jQuery('<div>', {
+        class: 'timed-assessment-result'
+      });
+
+      var $resultHeader = H5P.jQuery('<div>', {
+        class: 'timed-assessment-result-header'
+      });
+
+      $resultHeader.append(
+        H5P.jQuery('<strong>', {
+          text: 'Question ' + (index + 1)
+        })
+      );
+
+      var statusText = 'No answer';
+
+      if (result) {
+        statusText = result.correct ? 'Correct' : 'Incorrect';
+
+        if (result.timedOut) {
+          statusText += ' — Time expired';
+        }
+      }
+
+      $resultHeader.append(
+        H5P.jQuery('<span>', {
+          class:
+            'timed-assessment-result-status ' +
+            (result && result.correct
+              ? 'timed-assessment-result-correct'
+              : 'timed-assessment-result-incorrect'),
+          text: statusText
+        })
+      );
+
+      $result.append($resultHeader);
+
+      $result.append(
+        H5P.jQuery('<p>', {
+          class: 'timed-assessment-result-question',
+          text: question.questionText || ''
+        })
+      );
+
+      $results.append($result);
+    });
+
+    $finished.append($results);
 
     this.$container.append($finished);
     this.trigger('resize');
