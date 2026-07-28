@@ -12,6 +12,7 @@ H5P.TimedAssessment = (function () {
     this.responses = [];
     this.score = 0;
     this.completed = false;
+    this.questionCompleted = false;
   }
 
   TimedAssessment.prototype.attach = function ($container) {
@@ -372,12 +373,11 @@ H5P.TimedAssessment = (function () {
   };
 
   TimedAssessment.prototype.timeExpired = function () {
-    this.saveCurrentResponse(true);
-    this.disableCurrentQuestion();
-
     if (this.$timerDisplay) {
-    this.$timerDisplay.text('00:00');
+      this.$timerDisplay.text('00:00');
     }
+
+    this.completeCurrentQuestion(true);
   };
 
   TimedAssessment.prototype.disableCurrentQuestion = function () {
@@ -520,14 +520,21 @@ H5P.TimedAssessment = (function () {
     this.trigger(event);
   };
 
-  TimedAssessment.prototype.completeCurrentQuestion = function () {
+  TimedAssessment.prototype.completeCurrentQuestion = function (timedOut) {
     var self = this;
 
     this.stopTimer();
 
-    // Save the current answer
+    // Prevent the question from being processed twice
+    if (this.questionCompleted) {
+      return;
+    }
+
+    this.questionCompleted = true;
+
+    // Save answer and preserve whether time expired
     if (!this.responses[this.currentQuestion]) {
-      this.saveCurrentResponse(false);
+      this.saveCurrentResponse(Boolean(timedOut));
     }
 
     var result = this.responses[this.currentQuestion];
@@ -547,18 +554,16 @@ H5P.TimedAssessment = (function () {
 
     delay = Math.max(500, Math.min(10000, delay));
 
-    // Prevent changing the answer after Check
+    // Lock answer after Check or time expiration
     this.disableCurrentQuestion();
 
-    // Prevent pressing Check more than once
     var $checkButton = this.$container.find(
       '.timed-assessment-next'
     );
 
     $checkButton.prop('disabled', true);
 
-
-    // Show H5P score bar under the question
+    // Show the standard H5P score bar
     if (showScoreAfterQuestion) {
       var $feedback = H5P.jQuery('<div>', {
         class: 'timed-assessment-inline-feedback'
@@ -574,6 +579,19 @@ H5P.TimedAssessment = (function () {
         scoreBar.appendTo($feedback);
       }
 
+      var statusText;
+
+      if (timedOut) {
+        statusText = result && result.correct
+          ? '✓ Correct — Time expired'
+          : '× Time expired';
+      }
+      else {
+        statusText = result && result.correct
+          ? '✓ Correct'
+          : '× Incorrect';
+      }
+
       $feedback.append(
         H5P.jQuery('<div>', {
           class:
@@ -581,10 +599,7 @@ H5P.TimedAssessment = (function () {
             (result && result.correct
               ? 'timed-assessment-feedback-correct'
               : 'timed-assessment-feedback-incorrect'),
-          text:
-            result && result.correct
-              ? '✓ Correct'
-              : '× Incorrect'
+          text: statusText
         })
       );
 
@@ -595,13 +610,14 @@ H5P.TimedAssessment = (function () {
       this.trigger('resize');
     }
 
-
-    // Function used to advance
     var advance = function () {
       if (self.currentQuestion < self.questions.length - 1) {
         self.currentQuestion += 1;
+
         self.questionRevealed = false;
+        self.questionCompleted = false;
         self.timeRemaining = 0;
+
         self.render();
         return;
       }
@@ -609,13 +625,11 @@ H5P.TimedAssessment = (function () {
       self.renderFinished();
     };
 
-
     // Automatic progression
     if (autoContinue) {
       window.setTimeout(advance, delay);
       return;
     }
-
 
     // Manual progression
     $checkButton
@@ -628,7 +642,6 @@ H5P.TimedAssessment = (function () {
       .off('click')
       .on('click', advance);
   };
-
 
   TimedAssessment.prototype.decodeHTML = function (text) {
   if (text === null || text === undefined) {
