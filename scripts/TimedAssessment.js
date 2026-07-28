@@ -317,6 +317,13 @@ H5P.TimedAssessment = (function () {
         self.$timerDisplay.text(
           self.formatTime(self.timeRemaining)
         );
+
+      if (self.timeRemaining <= 10 && self.timeRemaining > 0) {
+        self.$timerDisplay.addClass('timed-assessment-timer-warning');
+      }
+      else {
+        self.$timerDisplay.removeClass('timed-assessment-timer-warning');
+      }
       }
 
       if (self.timeRemaining <= 0) {

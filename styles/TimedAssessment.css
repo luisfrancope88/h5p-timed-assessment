@@ -354,3 +354,109 @@
   outline: 3px solid rgba(26, 115, 217, 0.35);
   outline-offset: 3px;
 }
+
+/* =========================================================
+   ANSWER OPTIONS
+   ========================================================= */
+
+.timed-assessment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+
+  padding: 0.9em 1em;
+  margin-bottom: 0.7em;
+
+  background: var(--ta-surface);
+  border: 1px solid var(--ta-border);
+  border-radius: 0.45em;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+/* Mouse hover */
+
+.timed-assessment-option:hover {
+  background: #f5f8fc;
+  border-color: #b7cbe5;
+}
+
+
+/* Radio and checkbox */
+
+.timed-assessment-option input {
+  margin: 0;
+
+  width: 1.15em;
+  height: 1.15em;
+
+  accent-color: var(--ta-primary);
+  cursor: pointer;
+}
+
+
+/* Highlight the whole selected option */
+
+.timed-assessment-option:has(input:checked) {
+  background: #edf5ff;
+  border-color: var(--ta-primary);
+  box-shadow: 0 0 0 1px var(--ta-primary);
+}
+
+
+/* Keyboard focus */
+
+.timed-assessment-option:has(input:focus-visible) {
+  outline: 3px solid rgba(26, 115, 217, 0.25);
+  outline-offset: 2px;
+}
+
+
+/* Disabled after time expires */
+
+.timed-assessment-option:has(input:disabled) {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.timed-assessment-option input:disabled {
+  cursor: default;
+}
+
+/* =========================================================
+   TIMER WARNING
+   ========================================================= */
+
+.timed-assessment-timer {
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.timed-assessment-timer-warning {
+  color: var(--ta-error);
+  border-color: var(--ta-error);
+  background: var(--ta-error-bg);
+
+  animation: timed-assessment-timer-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes timed-assessment-timer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(1.06);
+  }
+}
