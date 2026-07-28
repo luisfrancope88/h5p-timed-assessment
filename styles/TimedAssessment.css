@@ -536,3 +536,116 @@
   color: var(--ta-muted);
   font-weight: 500;
 }
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+
+.timed-assessment-finished {
+  padding: 0.5em;
+}
+
+
+/* Final score */
+
+.timed-assessment-score {
+  margin: 1.5em 0;
+  padding: 1em 1.25em;
+
+  background: #f5f8fc;
+  border-left: 5px solid var(--ta-primary);
+  border-radius: 0.4em;
+
+  font-size: 1.15em;
+}
+
+
+/* Results container */
+
+.timed-assessment-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+
+/* Individual result */
+
+.timed-assessment-result {
+  padding: 1.2em;
+
+  background: var(--ta-surface);
+  border: 1px solid var(--ta-border);
+  border-radius: 0.55em;
+
+  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.06);
+}
+
+
+/* Question + status */
+
+.timed-assessment-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+
+  margin-bottom: 0.75em;
+}
+
+
+/* Correct */
+
+.timed-assessment-result-correct {
+  color: var(--ta-success);
+  background: var(--ta-success-bg);
+
+  padding: 0.35em 0.75em;
+  border-radius: 2em;
+
+  font-weight: 600;
+}
+
+.timed-assessment-result-correct::before {
+  content: "✓ ";
+}
+
+
+/* Incorrect */
+
+.timed-assessment-result-incorrect {
+  color: var(--ta-error);
+  background: var(--ta-error-bg);
+
+  padding: 0.35em 0.75em;
+  border-radius: 2em;
+
+  font-weight: 600;
+}
+
+.timed-assessment-result-incorrect::before {
+  content: "× ";
+}
+
+
+/* Question text */
+
+.timed-assessment-result-question {
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+
+/* Answer details */
+
+.timed-assessment-result-details {
+  margin-top: 0.8em;
+  padding-top: 0.7em;
+
+  border-top: 1px solid var(--ta-border);
+}
+
+.timed-assessment-result-details p {
+  margin: 0.45em 0;
+  line-height: 1.5;
+}
