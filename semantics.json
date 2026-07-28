@@ -56,6 +56,32 @@
           "min": 10,
           "max": 600,
           "step": 10
+        },
+        {
+          "name": "answers",
+          "type": "list",
+          "label": "Answers",
+          "entity": "Answer",
+          "min": 2,
+          "field": {
+            "name": "answer",
+            "type": "group",
+            "label": "Answer",
+            "fields": [
+              {
+                "name": "answerText",
+                "type": "text",
+                "label": "Answer text",
+                "importance": "high"
+              },
+              {
+                "name": "correct",
+                "type": "boolean",
+                "label": "Correct answer",
+                "default": false
+              }
+            ]
+          }
         }
       ]
     }
