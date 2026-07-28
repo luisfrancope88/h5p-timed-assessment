@@ -117,5 +117,48 @@
         
       ]
     }
+    },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behaviour",
+    "importance": "high",
+    "fields": [
+      {
+        "name": "passingScore",
+        "type": "number",
+        "label": "Passing score (%)",
+        "description": "Percentage required to pass the assessment.",
+        "default": 50,
+        "min": 0,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "name": "showFinalScore",
+        "type": "boolean",
+        "label": "Show final score",
+        "default": true
+      },
+      {
+        "name": "showScoreAfterQuestion",
+        "type": "boolean",
+        "label": "Show score after each question",
+        "description": "Show the learner whether the question was answered correctly before continuing.",
+        "default": false
+      },
+      {
+        "name": "showLearnerAnswers",
+        "type": "boolean",
+        "label": "Show learner answers in the final results",
+        "default": true
+      },
+      {
+        "name": "showCorrectAnswers",
+        "type": "boolean",
+        "label": "Show correct answers in the final results",
+        "default": true
+      }
+    ]
   }
 ]
