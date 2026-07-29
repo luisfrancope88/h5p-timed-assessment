@@ -155,6 +155,7 @@
         "description": "Automatically proceed to the next hidden question after checking the answer.",
         "default": true
       },
+      
       {
         "name": "autoContinueDelay",
         "type": "number",
@@ -164,6 +165,33 @@
         "min": 500,
         "max": 10000,
         "step": 500
+      },
+
+      {
+        "name": "enableTimerWarning",
+        "type": "boolean",
+        "label": "Enable countdown warning",
+        "description": "Show a visual warning when the timer is close to zero.",
+        "default": true
+      },
+
+      {
+        "name": "timerWarningSeconds",
+        "type": "number",
+        "label": "Warning starts at (seconds)",
+        "description": "Number of seconds remaining when the timer warning starts.",
+        "default": 10,
+        "min": 1,
+        "max": 60,
+        "step": 1
+      },
+      
+      {
+        "name": "flashTimerWarning",
+        "type": "boolean",
+        "label": "Flash timer during warning",
+        "description": "Make the timer pulse when the countdown warning is active.",
+        "default": true
       },
       {
         "name": "showLearnerAnswers",

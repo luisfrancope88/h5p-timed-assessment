@@ -344,18 +344,53 @@ H5P.TimedAssessment = (function () {
     this.timer = window.setInterval(function () {
       self.timeRemaining -= 1;
 
-      if (self.$timerDisplay) {
-        self.$timerDisplay.text(
-          self.formatTime(self.timeRemaining)
+    if (self.$timerDisplay) {
+      self.$timerDisplay.text(
+        self.formatTime(self.timeRemaining)
+      );
+
+      var behaviour = self.params.behaviour || {};
+
+      var enableWarning =
+        behaviour.enableTimerWarning !== false;
+
+      var warningSeconds =
+        Number(behaviour.timerWarningSeconds);
+
+      if (!Number.isFinite(warningSeconds)) {
+        warningSeconds = 10;
+      }
+
+      var flashWarning =
+        behaviour.flashTimerWarning !== false;
+
+      var warningActive =
+        enableWarning &&
+        self.timeRemaining <= warningSeconds &&
+        self.timeRemaining > 0;
+
+      if (warningActive) {
+        self.$timerDisplay.addClass(
+          'timed-assessment-timer-warning'
         );
 
-      if (self.timeRemaining <= 10 && self.timeRemaining > 0) {
-        self.$timerDisplay.addClass('timed-assessment-timer-warning');
+        if (flashWarning) {
+          self.$timerDisplay.addClass(
+            'timed-assessment-timer-flash'
+          );
+        }
+        else {
+          self.$timerDisplay.removeClass(
+            'timed-assessment-timer-flash'
+          );
+        }
       }
       else {
-        self.$timerDisplay.removeClass('timed-assessment-timer-warning');
+        self.$timerDisplay.removeClass(
+          'timed-assessment-timer-warning timed-assessment-timer-flash'
+        );
       }
-      }
+    }
 
       if (self.timeRemaining <= 0) {
         self.timeRemaining = 0;
